@@ -19,6 +19,16 @@ class SessionData {
   int selectedSec = 0;
   int selectedFraction = 5;
 
+  // Exposure Settings
+  double exposureEV = 10.0;  // Computed from metering
+  double iso = 100.0;        // Film ISO
+
+ // bool useApertureMode = true;   // true = Aperture Priority, false = Shutter Priority
+
+// Indexes into standard exposure value lists
+ // int selectedApertureIndex = 6; // f/8
+  int selectedShutterIndex = 5;  // 1/60
+
   // Metering page
   // Metering
   double lowEV = 7.0;
