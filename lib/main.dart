@@ -1,15 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(const BTZSCalcApp());
+void main() {
+  runApp(const ExposureAssistantApp());
+}
 
-class BTZSCalcApp extends StatelessWidget {
-  const BTZSCalcApp({super.key});
+class ExposureAssistantApp extends StatelessWidget {
+  const ExposureAssistantApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const CupertinoApp(
       debugShowCheckedModeBanner: false,
+      theme: CupertinoThemeData(brightness: Brightness.dark),
       home: HomePage(),
     );
   }
@@ -17,6 +20,7 @@ class BTZSCalcApp extends StatelessWidget {
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -24,13 +28,19 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = const [
-    CameraPage(),
-    MeteringPage(),
-    FactorsPage(),
-    DOFCalculatorPage(),
-    ExposurePage(),
+  static final List<Widget> _pages = <Widget>[
+    const CameraPage(),
+    const MeteringPage(),
+    const DOFCalculatorPage(),
+    const ExposurePage(),
+    const FactorsPage(),
   ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,32 +48,73 @@ class _HomePageState extends State<HomePage> {
       tabBar: CupertinoTabBar(
         items: const [
           BottomNavigationBarItem(icon: Icon(CupertinoIcons.camera), label: 'Camera'),
-          BottomNavigationBarItem(icon: Icon(CupertinoIcons.lock), label: 'Metering'),
-          BottomNavigationBarItem(icon: Icon(CupertinoIcons.add_circled), label: 'Factors'),
-          BottomNavigationBarItem(icon: Icon(CupertinoIcons.photo), label: 'DOF'),
+          BottomNavigationBarItem(icon: Icon(CupertinoIcons.lightbulb), label: 'Metering'),
+          BottomNavigationBarItem(icon: Icon(CupertinoIcons.square_on_square), label: 'DOF'),
           BottomNavigationBarItem(icon: Icon(CupertinoIcons.timer), label: 'Exposure'),
+          BottomNavigationBarItem(icon: Icon(CupertinoIcons.slider_horizontal_3), label: 'Factors'),
         ],
         currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
+        onTap: _onItemTapped,
       ),
-      tabBuilder: (context, index) => _pages[index],
+      tabBuilder: (context, index) => CupertinoTabView(
+        builder: (context) => _pages[index],
+      ),
     );
   }
 }
 
 class CameraPage extends StatelessWidget {
   const CameraPage({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return const CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(middle: Text('Camera')),
-      child: Center(child: Text('Camera Page')),
+    return CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(middle: Text('Camera Setup')),
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            const Text('Camera Model'),
+            CupertinoTextField(
+              placeholder: 'e.g. 4x5 View',
+              onChanged: (val) => session.cameraModel = val,
+            ),
+            const SizedBox(height: 16),
+            const Text('Film Holder'),
+            CupertinoTextField(
+              placeholder: 'e.g. Fidelity Elite',
+              onChanged: (val) => session.filmHolder = val,
+            ),
+            const SizedBox(height: 16),
+            const Text('Film Stock'),
+            CupertinoTextField(
+              placeholder: 'e.g. FP4+',
+              onChanged: (val) => session.filmStock = val,
+            ),
+            const SizedBox(height: 16),
+            const Text('Flare Factor'),
+            CupertinoTextField(
+              placeholder: 'e.g. 0.3',
+              keyboardType: TextInputType.number,
+              onChanged: (val) => session.flareFactor = double.tryParse(val) ?? 0.3,
+            ),
+            const SizedBox(height: 16),
+            const Text('Paper ES'),
+            CupertinoTextField(
+              placeholder: 'e.g. 1.2',
+              keyboardType: TextInputType.number,
+              onChanged: (val) => session.paperES = double.tryParse(val) ?? 1.2,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
 class MeteringPage extends StatefulWidget {
   const MeteringPage({super.key});
+
   @override
   State<MeteringPage> createState() => _MeteringPageState();
 }
@@ -103,6 +154,12 @@ class _MeteringPageState extends State<MeteringPage> {
                     });
                   },
                   children: List.generate(21, (i) => Center(child: Text(i.toString()))),
+                  useMagnifier: true,
+                  magnification: 1.2,
+                  diameterRatio: 1.2,
+                  squeeze: 1.1,
+                  looping: false,
+                  selectionOverlay: const CupertinoPickerDefaultSelectionOverlay(),
                 ),
               ],
             ),
@@ -120,6 +177,12 @@ class _MeteringPageState extends State<MeteringPage> {
                     });
                   },
                   children: List.generate(11, (i) => Center(child: Text(i.toString()))),
+                  useMagnifier: true,
+                  magnification: 1.2,
+                  diameterRatio: 1.2,
+                  squeeze: 1.1,
+                  looping: false,
+                  selectionOverlay: const CupertinoPickerDefaultSelectionOverlay(),
                 ),
               ],
             ),
@@ -131,7 +194,6 @@ class _MeteringPageState extends State<MeteringPage> {
 
   @override
   Widget build(BuildContext context) {
-    final fallbackMode = session.meteringMode.isEmpty ? 'Incident' : session.meteringMode;
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(middle: Text('Metering')),
       child: SafeArea(
@@ -144,7 +206,7 @@ class _MeteringPageState extends State<MeteringPage> {
                 'Incident': Padding(padding: EdgeInsets.all(8), child: Text('Incident')),
                 'Zone': Padding(padding: EdgeInsets.all(8), child: Text('Zone')),
               },
-              groupValue: fallbackMode,
+              groupValue: session.meteringMode,
               onValueChanged: updateMeteringMode,
             ),
             const SizedBox(height: 24),
@@ -166,33 +228,6 @@ class _MeteringPageState extends State<MeteringPage> {
   }
 }
 
-class FactorsPage extends StatelessWidget {
-  const FactorsPage({super.key});
-  @override
-  Widget build(BuildContext context) => const CupertinoPageScaffold(
-    navigationBar: CupertinoNavigationBar(middle: Text('Factors')),
-    child: Center(child: Text('Factors Page')),
-  );
-}
-
-class DOFCalculatorPage extends StatelessWidget {
-  const DOFCalculatorPage({super.key});
-  @override
-  Widget build(BuildContext context) => const CupertinoPageScaffold(
-    navigationBar: CupertinoNavigationBar(middle: Text('DOF Calculator')),
-    child: Center(child: Text('DOF Calculator Page')),
-  );
-}
-
-class ExposurePage extends StatelessWidget {
-  const ExposurePage({super.key});
-  @override
-  Widget build(BuildContext context) => const CupertinoPageScaffold(
-    navigationBar: CupertinoNavigationBar(middle: Text('Exposure')),
-    child: Center(child: Text('Exposure Page')),
-  );
-}
-
 class SessionData {
   static final SessionData _instance = SessionData._internal();
   factory SessionData() => _instance;
@@ -205,36 +240,69 @@ class SessionData {
   double flareFactor = 0.3;
   double paperES = 1.2;
 
-  // Exposure page
-  bool useApertureMode = true;
-  int selectedApertureIndex = 6;
-  int selectedMin = 0;
-  int selectedSec = 0;
-  int selectedFraction = 5;
-
   // Metering
   int lowEV = 7;
   int lowZone = 3;
   int highEV = 12;
   int highZone = 8;
   String meteringNotes = '';
-  String meteringMode = 'Incident';
-  String selectedFilter = 'None';
-  String bellowsMode = 'None';
-  String exposureAdjustment = 'None';
+  String meteringMode = '';
 
-  // DOF
+  // Placeholder for DOF and Exposure
   int focalLength = 210;
   double subjectDistance = 2000;
   double circleOfConfusion = 0.03;
   bool favorDOF = false;
 
-  // Curves
+  bool useApertureMode = true;
+  int selectedApertureIndex = 6;
+  int selectedMin = 0;
+  int selectedSec = 0;
+  int selectedFraction = 5;
+
+  String selectedFilter = 'None';
+  String bellowsMode = 'None';
+  String exposureAdjustment = 'None';
+
   final List<Map<String, dynamic>> curves = [
     {"label": "N-1", "DR": 0.9, "devTime": 5.5},
     {"label": "N",   "DR": 1.1, "devTime": 7.0},
     {"label": "N+1", "DR": 1.3, "devTime": 9.0},
   ];
 }
+class DOFCalculatorPage extends StatelessWidget {
+  const DOFCalculatorPage({super.key});
 
+  @override
+  Widget build(BuildContext context) {
+    return const CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(middle: Text('DOF Calculator')),
+      child: Center(child: Text('DOF Calculator Page')),
+    );
+  }
+}
+
+class ExposurePage extends StatelessWidget {
+  const ExposurePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(middle: Text('Exposure')),
+      child: Center(child: Text('Exposure Page')),
+    );
+  }
+}
+
+class FactorsPage extends StatelessWidget {
+  const FactorsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(middle: Text('Factors')),
+      child: Center(child: Text('Factors Page')),
+    );
+  }
+}
 final session = SessionData();
