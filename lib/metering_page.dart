@@ -1,121 +1,75 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'session.dart';
+import 'package:btzs_calc/session.dart';
 
 class MeteringPage extends StatefulWidget {
-  const MeteringPage({Key? key}) : super(key: key);
+  const MeteringPage({super.key});
 
   @override
   State<MeteringPage> createState() => _MeteringPageState();
 }
 
 class _MeteringPageState extends State<MeteringPage> {
+  final session = Session();
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Metering')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+    return CupertinoPageScaffold(
+      navigationBar: const CupertinoNavigationBar(middle: Text('Metering')),
+      child: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            const Text('Metering Mode', style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 8),
+
+            // Toggle between Incident and Zone modes
             CupertinoSegmentedControl<String>(
               children: const {
-                'Lo': Text('Lo'),
-                'Hi': Text('Hi'),
+                'Incident': Text('Incident'),
+                'Zone': Text('Zone'),
               },
-              groupValue: ['Lo', 'Hi'].contains(session.meteringMode)
-                  ? session.meteringMode
-                  : 'Lo',
-              onValueChanged: (mode) {
-                setState(() => session.meteringMode = mode);
-              },
+              groupValue: session.meteringMode,
+              onValueChanged: (mode) => setState(() => session.meteringMode = mode),
             ),
+
             const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    const Text('Lo EV'),
-                    SizedBox(
-                      height: 150,
-                      width: 80,
-                      child: CupertinoPicker(
-                        scrollController: FixedExtentScrollController(
-                          initialItem: session.lowEV.toInt(),
-                        ),
-                        itemExtent: 40,
-                        onSelectedItemChanged: (v) =>
-                            setState(() => session.lowEV = v.toDouble()),
-                        children: List.generate(21, (i) => Text('$i')),
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    const Text('Lo Zone'),
-                    SizedBox(
-                      height: 150,
-                      width: 80,
-                      child: CupertinoPicker(
-                        scrollController: FixedExtentScrollController(
-                          initialItem: session.lowZone.toInt(),
-                        ),
-                        itemExtent: 40,
-                        onSelectedItemChanged: (v) =>
-                            setState(() => session.lowZone = v.toDouble()),
-                        children: List.generate(11, (i) => Text('$i')),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+            const Text('Low EV', style: TextStyle(color: Colors.white)),
+            CupertinoPicker(
+              magnification: 1.2,
+              useMagnifier: true,
+              itemExtent: 40,
+              scrollController: FixedExtentScrollController(initialItem: session.lowEV.toInt()),
+              onSelectedItemChanged: (v) => setState(() => session.lowEV = v.toDouble()),
+              children: List<Widget>.generate(25, (i) => Text('EV $i', style: const TextStyle(color: Colors.white))),
             ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    const Text('Hi EV'),
-                    SizedBox(
-                      height: 150,
-                      width: 80,
-                      child: CupertinoPicker(
-                        scrollController: FixedExtentScrollController(
-                          initialItem: session.highEV.toInt(),
-                        ),
-                        itemExtent: 40,
-                        onSelectedItemChanged: (v) =>
-                            setState(() => session.highEV = v.toDouble()),
-                        children: List.generate(21, (i) => Text('$i')),
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    const Text('Hi Zone'),
-                    SizedBox(
-                      height: 150,
-                      width: 80,
-                      child: CupertinoPicker(
-                        scrollController: FixedExtentScrollController(
-                          initialItem: session.highZone.toInt(),
-                        ),
-                        itemExtent: 40,
-                        onSelectedItemChanged: (v) =>
-                            setState(() => session.highZone = v.toDouble()),
-                        children: List.generate(11, (i) => Text('$i')),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+
+            const Text('Low Zone', style: TextStyle(color: Colors.white)),
+            CupertinoPicker(
+              magnification: 1.2,
+              useMagnifier: true,
+              itemExtent: 40,
+              scrollController: FixedExtentScrollController(initialItem: session.lowZone.toInt()),
+              onSelectedItemChanged: (v) => setState(() => session.lowZone = v.toDouble()),
+              children: List<Widget>.generate(12, (i) => Text('Zone $i', style: const TextStyle(color: Colors.white))),
+            ),
+
+            const Text('High EV', style: TextStyle(color: Colors.white)),
+            CupertinoPicker(
+              magnification: 1.2,
+              useMagnifier: true,
+              itemExtent: 40,
+              scrollController: FixedExtentScrollController(initialItem: session.highEV.toInt()),
+              onSelectedItemChanged: (v) => setState(() => session.highEV = v.toDouble()),
+              children: List<Widget>.generate(25, (i) => Text('EV $i', style: const TextStyle(color: Colors.white))),
+            ),
+
+            const Text('High Zone', style: TextStyle(color: Colors.white)),
+            CupertinoPicker(
+              magnification: 1.2,
+              useMagnifier: true,
+              itemExtent: 40,
+              scrollController: FixedExtentScrollController(initialItem: session.highZone.toInt()),
+              onSelectedItemChanged: (v) => setState(() => session.highZone = v.toDouble()),
+              children: List<Widget>.generate(12, (i) => Text('Zone $i', style: const TextStyle(color: Colors.white))),
             ),
           ],
         ),

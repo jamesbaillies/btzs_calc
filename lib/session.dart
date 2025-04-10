@@ -1,59 +1,54 @@
-// lib/session.dart
-
 import 'package:flutter/material.dart';
 import 'dart:math';
 
 class Session {
-  // Exposure settings
+  // Exposure & Camera Info
+  String exposureTitle = '';
+  String filmHolder = '';
+  String filmStock = 'HP5+';
+  List<String> filmStocks = ['HP5+', 'FP4+', 'Portra 400', 'Ektar', 'Tri-X'];
+  double paperES = 1.05;
+  double flareFactor = 0.25;
+  String cameraModel = '4x5';
+
+  // Metering
+  String meteringMode = 'Lo';
+  int lowEV = 7;
+  int highEV = 14;
+  int lowZone = 2;
+  int highZone = 8;
+
+  // Focal Lengths
+  double focalLength = 210;
+  List<int> savedFocalLengths = [90, 150, 210, 300, 360];
+
+  // DOF
+  double subjectDistance = 1500; // mm
+  double circleOfConfusion = 0.03;
+
+  // Exposure
   bool useApertureMode = true;
-  int selectedApertureIndex = 6; // f/8
+  int selectedApertureIndex = 6;
   int selectedMin = 0;
   int selectedSec = 0;
-  int selectedFraction = 0;
+  int selectedFraction = 6;
 
-  // DOF settings
-  double focalLength = 150.0; // mm
-  double subjectDistance = 1000.0; // mm
-  double circleOfConfusion = 0.03; // mm
-
-  // Metering settings
-  String meteringMode = 'Lo';
-  double lowEV = 5.0;
-  double highEV = 10.0;
-  double lowZone = 3.0;
-  double highZone = 7.0;
-
-
-  // Camera settings
-  String cameraModel = 'Field';
-  String filmHolder = 'Standard';
-  String filmStock = 'FP4+';
-  double paperES = 1.0;
-  double flareFactor = 0.2;
-
-  List<String> get filmStocks => ['FP4+', 'HP5+', 'Tri-X', 'Delta 100'];
-
-  // UI options
-  final List<double> apertureValues = [1.4, 2, 2.8, 4, 5.6, 8, 11, 16, 22, 32, 45];
-  final List<int> shutterSeconds = List.generate(61, (i) => i); // 0–60 seconds
-  final List<int> shutterFractions = [8000, 4000, 2000, 1000, 500, 250, 125, 60, 30, 15, 8, 4, 2];
+  List<double> apertureValues = [1.4, 2, 2.8, 4, 5.6, 8, 11, 16, 22, 32, 45, 64];
+  List<int> shutterFractions = [2, 4, 8, 15, 30, 60, 125, 250, 500];
 
   double get selectedAperture => apertureValues[selectedApertureIndex];
 
   double get totalShutterSeconds {
-    double sec = selectedSec.toDouble();
-    double frac = selectedFraction < shutterFractions.length
-        ? 1 / shutterFractions[selectedFraction]
-        : 0.0;
-    return selectedMin * 60 + sec + frac;
+    double sec = selectedMin * 60 + selectedSec.toDouble();
+    if (selectedFraction < shutterFractions.length) {
+      sec += 1 / shutterFractions[selectedFraction];
+    }
+    return sec;
   }
 
   double calculateEV() {
     final N = selectedAperture;
     final t = totalShutterSeconds;
-    if (t <= 0.0) return 0.0;
-    return (log(N * N / t) / ln2);
+    return log(N * N / t) / ln2;
   }
 }
-
-final session = Session();

@@ -1,85 +1,158 @@
 import 'package:flutter/cupertino.dart';
-import 'session.dart';
-import 'dart:math';
+import 'package:flutter/material.dart';
+import 'package:btzs_calc/session.dart';
+import 'package:btzs_calc/utils/dof_calculator.dart';
 
 class DOFCalculatorPage extends StatefulWidget {
-   DOFCalculatorPage({super.key});
+  const DOFCalculatorPage({super.key});
 
   @override
   State<DOFCalculatorPage> createState() => _DOFCalculatorPageState();
 }
 
 class _DOFCalculatorPageState extends State<DOFCalculatorPage> {
-  final session = Session(); // 👈 this is critical
-  double calculateNearLimit(double f, double d, double c) {
-    final numerator = d * f * f;
-    final denominator = f * f + c * (d - f);
-    return numerator / denominator;
-  }
+  final session = Session();
+  int selectedMode = 0; // 0: None, 1: Check, 2: Distance, 3: Focus
 
-  double calculateFarLimit(double f, double d, double c) {
-    final numerator = d * f * f;
-    final denominator = f * f - c * (d - f);
-    if (denominator <= 0) return double.infinity;
-    return numerator / denominator;
-  }
-
-  double calculateDOF(double near, double far) {
-    if (far == double.infinity) return double.infinity;
-    return far - near;
-  }
+  int apertureIndex = 10; // default f/22
+  double subjectDistance = 1000;
+  double nearDistance = 500;
+  double farDistance = 2000;
+  double railTravel = 0.0;
 
   @override
   Widget build(BuildContext context) {
-    final f = session.focalLength.toDouble();
-    final d = session.subjectDistance.toDouble();
-    final c = session.circleOfConfusion;
-
-    final near = calculateNearLimit(f, d, c);
-    final far = calculateFarLimit(f, d, c);
-    final dof = calculateDOF(near, far);
-
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(middle: Text('DOF Calculator')),
+      navigationBar: const CupertinoNavigationBar(middle: Text("DOF")),
       child: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+        child: Column(
           children: [
-            const Text('Focal Length (mm)'),
-            CupertinoSlider(
-              min: 90,
-              max: 600,
-              value: f,
-              onChanged: (val) => setState(() => session.focalLength = val.toDouble()),
+            const SizedBox(height: 16),
+            CupertinoSegmentedControl<int>(
+              children: const {
+                0: Text("None"),
+                1: Text("Check"),
+                2: Text("Distance"),
+                3: Text("Focus"),
+              },
+              groupValue: selectedMode,
+              onValueChanged: (val) => setState(() => selectedMode = val),
             ),
-            Text('${session.focalLength} mm'),
             const SizedBox(height: 24),
-
-            const Text('Subject Distance (mm)'),
-            CupertinoSlider(
-              min: 100,
-              max: 10000,
-              value: d,
-              onChanged: (val) => setState(() => session.subjectDistance = val),
+            Expanded(
+              child: _buildContentForMode(),
             ),
-            Text('${session.subjectDistance.toStringAsFixed(0)} mm'),
-            const SizedBox(height: 24),
-
-            const Text('Circle of Confusion (mm)'),
-            CupertinoSlider(
-              min: 0.01,
-              max: 0.1,
-              value: c,
-              onChanged: (val) => setState(() => session.circleOfConfusion = val),
-            ),
-            Text(session.circleOfConfusion.toStringAsFixed(2)),
-            const SizedBox(height: 32),
-
-            const Text('Depth of Field'),
-            Text('Near limit: ${near.toStringAsFixed(1)} mm'),
-            Text('Far limit: ${far == double.infinity ? "∞" : far.toStringAsFixed(1)} mm'),
-            Text('Total DOF: ${dof == double.infinity ? "∞" : dof.toStringAsFixed(1)} mm'),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContentForMode() {
+    if (session.focalLength == 0) {
+      return _warningBox("Focal Length has not been selected");
+    }
+
+    switch (selectedMode) {
+      case 1:
+        return _checkMode();
+      case 2:
+        return _distanceMode();
+      case 3:
+        return _focusMode();
+      default:
+        return const Center(child: Text("Select a mode to begin."));
+    }
+  }
+
+  Widget _checkMode() {
+    return Column(
+      children: [
+        const Text("Aperture"),
+        CupertinoPicker(
+          itemExtent: 32,
+          scrollController: FixedExtentScrollController(initialItem: apertureIndex),
+          onSelectedItemChanged: (i) => setState(() => apertureIndex = i),
+          children: session.apertureValues.map((f) => Text("f/\$f")).toList(),
+        ),
+        const SizedBox(height: 16),
+        const Text("Distance (m)"),
+        CupertinoSlider(
+          min: 0.1,
+          max: 50.0,
+          divisions: 500,
+          value: subjectDistance,
+          onChanged: (val) => setState(() => subjectDistance = val),
+        ),
+        Text("${subjectDistance.toStringAsFixed(1)} m"),
+      ],
+    );
+  }
+
+  Widget _distanceMode() {
+    return Column(
+      children: [
+        const Text("Near Distance (m)"),
+        CupertinoSlider(
+          min: 0.1,
+          max: 50.0,
+          divisions: 500,
+          value: nearDistance,
+          onChanged: (val) => setState(() => nearDistance = val),
+        ),
+        Text("${nearDistance.toStringAsFixed(1)} m"),
+        const SizedBox(height: 16),
+        const Text("Far Distance (m)"),
+        CupertinoSlider(
+          min: 0.1,
+          max: 50.0,
+          divisions: 500,
+          value: farDistance,
+          onChanged: (val) => setState(() => farDistance = val),
+        ),
+        Text("${farDistance.toStringAsFixed(1)} m"),
+      ],
+    );
+  }
+
+  Widget _focusMode() {
+    return Column(
+      children: [
+        const Text("Rail Travel (mm)"),
+        CupertinoSlider(
+          min: 0.0,
+          max: 100.0,
+          divisions: 200,
+          value: railTravel,
+          onChanged: (val) => setState(() => railTravel = val),
+        ),
+        Text("${railTravel.toStringAsFixed(1)} mm"),
+        const SizedBox(height: 16),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            "Measurement of focus rail travel between near and far subject planes",
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _warningBox(String message) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          border: Border.all(color: CupertinoColors.systemGrey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 18),
         ),
       ),
     );
