@@ -1,60 +1,59 @@
-// session.dart
+// lib/session.dart
 
-class SessionData {
-  static final SessionData _instance = SessionData._internal();
-  factory SessionData() => _instance;
-  SessionData._internal();
+import 'package:flutter/material.dart';
+import 'dart:math';
 
-  // Camera page
-  String cameraModel = '4x5 View';
-  String filmHolder = 'Fidelity Elite';
-  String filmStock = 'FP4+';
-  double flareFactor = 0.3;
-  double paperES = 1.2;
-
-  // Exposure page
+class Session {
+  // Exposure settings
   bool useApertureMode = true;
-  int selectedApertureIndex = 6;
+  int selectedApertureIndex = 6; // f/8
   int selectedMin = 0;
   int selectedSec = 0;
-  int selectedFraction = 5;
+  int selectedFraction = 0;
 
-  // Exposure Settings
-  double exposureEV = 10.0;  // Computed from metering
-  double iso = 100.0;        // Film ISO
+  // DOF settings
+  double focalLength = 150.0; // mm
+  double subjectDistance = 1000.0; // mm
+  double circleOfConfusion = 0.03; // mm
 
- // bool useApertureMode = true;   // true = Aperture Priority, false = Shutter Priority
-
-// Indexes into standard exposure value lists
- // int selectedApertureIndex = 6; // f/8
-  int selectedShutterIndex = 5;  // 1/60
-
-  // Metering page
-  // Metering
-  double lowEV = 7.0;
-  double highEV = 12.0;
+  // Metering settings
+  String meteringMode = 'Lo';
+  double lowEV = 5.0;
+  double highEV = 10.0;
   double lowZone = 3.0;
-  double highZone = 8.0;
-  String meteringNotes = '';
-  String meteringMode = 'Zone';
-  String selectedFilter = 'None';
-  String bellowsMode = 'None';
-  String exposureAdjustment = 'None';
+  double highZone = 7.0;
 
-  // DOF page
-  int focalLength = 210;
-  double subjectDistance = 2000;
-  double circleOfConfusion = 0.03;
-  bool favorDOF = false;
 
-  // Curves and development times
-  final List<Map<String, dynamic>> curves = [
-    {"label": "N-1", "DR": 0.9, "devTime": 5.5},
-    {"label": "N",   "DR": 1.1, "devTime": 7.0},
-    {"label": "N+1", "DR": 1.3, "devTime": 9.0},
-  ];
+  // Camera settings
+  String cameraModel = 'Field';
+  String filmHolder = 'Standard';
+  String filmStock = 'FP4+';
+  double paperES = 1.0;
+  double flareFactor = 0.2;
 
-  int selectedCurveIndex = 1; // default to "N"
+  List<String> get filmStocks => ['FP4+', 'HP5+', 'Tri-X', 'Delta 100'];
+
+  // UI options
+  final List<double> apertureValues = [1.4, 2, 2.8, 4, 5.6, 8, 11, 16, 22, 32, 45];
+  final List<int> shutterSeconds = List.generate(61, (i) => i); // 0–60 seconds
+  final List<int> shutterFractions = [8000, 4000, 2000, 1000, 500, 250, 125, 60, 30, 15, 8, 4, 2];
+
+  double get selectedAperture => apertureValues[selectedApertureIndex];
+
+  double get totalShutterSeconds {
+    double sec = selectedSec.toDouble();
+    double frac = selectedFraction < shutterFractions.length
+        ? 1 / shutterFractions[selectedFraction]
+        : 0.0;
+    return selectedMin * 60 + sec + frac;
+  }
+
+  double calculateEV() {
+    final N = selectedAperture;
+    final t = totalShutterSeconds;
+    if (t <= 0.0) return 0.0;
+    return (log(N * N / t) / ln2);
+  }
 }
 
-final session = SessionData();
+final session = Session();

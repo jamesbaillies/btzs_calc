@@ -3,13 +3,14 @@ import 'session.dart';
 import 'dart:math';
 
 class DOFCalculatorPage extends StatefulWidget {
-  const DOFCalculatorPage({super.key});
+   DOFCalculatorPage({super.key});
 
   @override
   State<DOFCalculatorPage> createState() => _DOFCalculatorPageState();
 }
 
 class _DOFCalculatorPageState extends State<DOFCalculatorPage> {
+  final session = Session(); // 👈 this is critical
   double calculateNearLimit(double f, double d, double c) {
     final numerator = d * f * f;
     final denominator = f * f + c * (d - f);
@@ -49,7 +50,7 @@ class _DOFCalculatorPageState extends State<DOFCalculatorPage> {
               min: 90,
               max: 600,
               value: f,
-              onChanged: (val) => setState(() => session.focalLength = val.round()),
+              onChanged: (val) => setState(() => session.focalLength = val.toDouble()),
             ),
             Text('${session.focalLength} mm'),
             const SizedBox(height: 24),

@@ -1,39 +1,40 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'camera_page.dart';
 import 'metering_page.dart';
 import 'factors_page.dart';
 import 'dof_page.dart';
 import 'exposure_page.dart';
-import 'session.dart';
 
-void main() => runApp(const BTZSCalcApp());
+void main() {
+  runApp(const MyApp());
+}
 
-class BTZSCalcApp extends StatelessWidget {
-  const BTZSCalcApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const CupertinoApp(
+    return MaterialApp(
+      title: 'BTZS Exposure App',
       debugShowCheckedModeBanner: false,
-      theme: CupertinoThemeData(brightness: Brightness.dark),
-      home: MainNavigation(),
+      theme: ThemeData.dark(),
+      home: const TabsPage(),
     );
   }
 }
 
-class MainNavigation extends StatefulWidget {
-  const MainNavigation({super.key});
+class TabsPage extends StatefulWidget {
+  const TabsPage({super.key});
 
   @override
-  State<MainNavigation> createState() => _MainNavigationState();
+  State<TabsPage> createState() => _TabsPageState();
 }
 
-class _MainNavigationState extends State<MainNavigation> {
-  int _tabIndex = 0;
+class _TabsPageState extends State<TabsPage> {
+  int _currentIndex = 0;
 
-  final List<Widget> _tabs = const [
+  final List<Widget> _tabs = [
     CameraPage(),
     MeteringPage(),
     FactorsPage(),
@@ -43,23 +44,22 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoTabScaffold(
-      tabBar: CupertinoTabBar(
-        currentIndex: _tabIndex,
-        onTap: (index) => setState(() => _tabIndex = index),
+    return Scaffold(
+      body: _tabs[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(CupertinoIcons.photo_camera), label: 'Camera'),
-          BottomNavigationBarItem(icon: Icon(CupertinoIcons.lock), label: 'Metering'),
-          BottomNavigationBarItem(icon: Icon(CupertinoIcons.add), label: 'Factors'),
-          BottomNavigationBarItem(icon: Icon(CupertinoIcons.photo_on_rectangle), label: 'DOF'),
-          BottomNavigationBarItem(icon: Icon(CupertinoIcons.textformat_alt), label: 'Exposure'),
+          BottomNavigationBarItem(icon: Icon(Icons.camera_alt), label: 'Camera'),
+          BottomNavigationBarItem(icon: Icon(Icons.lock), label: 'Metering'),
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Factors'),
+          BottomNavigationBarItem(icon: Icon(Icons.image), label: 'DOF'),
+          BottomNavigationBarItem(icon: Icon(Icons.text_fields), label: 'Exposure'),
         ],
       ),
-      tabBuilder: (context, index) {
-        return CupertinoTabView(
-          builder: (context) => _tabs[index],
-        );
-      },
     );
   }
 }

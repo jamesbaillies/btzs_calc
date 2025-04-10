@@ -2,7 +2,7 @@
 import 'package:flutter/cupertino.dart';
 
 class FactorsPage extends StatelessWidget {
-  const FactorsPage({super.key});
+   FactorsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
