@@ -20,9 +20,10 @@ class SessionData {
   int selectedFraction = 5;
 
   // Metering page
+  // Metering
   double lowEV = 7.0;
-  double lowZone = 3.0;
   double highEV = 12.0;
+  double lowZone = 3.0;
   double highZone = 8.0;
   String meteringNotes = '';
   String meteringMode = 'Zone';
