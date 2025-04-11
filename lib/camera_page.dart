@@ -67,9 +67,9 @@ class _CameraPageState extends State<CameraPage> {
                         final parsed = double.tryParse(val);
                         if (parsed != null) {
                           setState(() {
-                            session.focalLength = parsed.toInt();
+                            session.focalLength = parsed.toDouble();
                             if (!session.savedFocalLengths.contains(parsed.toInt())) {
-                              session.savedFocalLengths.add(parsed.toInt());
+                              session.savedFocalLengths.add(parsed);
                             }
                           });
                         }
@@ -116,10 +116,10 @@ class _CameraPageState extends State<CameraPage> {
         child: CupertinoPicker(
           itemExtent: 32.0,
           scrollController: FixedExtentScrollController(
-            initialItem: session.savedFocalLengths.indexOf(session.focalLength.toInt()),
+              initialItem: session.savedFocalLengths.indexOf(session.focalLength)
           ),
           onSelectedItemChanged: (index) => setState(() {
-            session.focalLength = session.savedFocalLengths[index];
+            session.focalLength = session.savedFocalLengths[index].toDouble();
             focalLengthController.text = session.focalLength.toString();
           }),
           children: session.savedFocalLengths.map((f) => Text('$f mm')).toList(),
