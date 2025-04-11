@@ -38,7 +38,7 @@ class _TabsPageState extends State<TabsPage> {
     CameraPage(),
     MeteringPage(),
     FactorsPage(),
-    DOFCalculatorPage(),
+    DOFPage(),
     ExposurePage(),
   ];
 

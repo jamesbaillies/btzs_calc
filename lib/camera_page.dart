@@ -67,7 +67,7 @@ class _CameraPageState extends State<CameraPage> {
                         final parsed = double.tryParse(val);
                         if (parsed != null) {
                           setState(() {
-                            session.focalLength = parsed;
+                            session.focalLength = parsed.toInt();
                             if (!session.savedFocalLengths.contains(parsed.toInt())) {
                               session.savedFocalLengths.add(parsed.toInt());
                             }
@@ -119,7 +119,7 @@ class _CameraPageState extends State<CameraPage> {
             initialItem: session.savedFocalLengths.indexOf(session.focalLength.toInt()),
           ),
           onSelectedItemChanged: (index) => setState(() {
-            session.focalLength = session.savedFocalLengths[index].toDouble();
+            session.focalLength = session.savedFocalLengths[index];
             focalLengthController.text = session.focalLength.toString();
           }),
           children: session.savedFocalLengths.map((f) => Text('$f mm')).toList(),

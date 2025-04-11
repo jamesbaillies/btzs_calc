@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:btzs_calc/session.dart';
+import 'session.dart';
 
 class MeteringPage extends StatefulWidget {
   const MeteringPage({super.key});
@@ -19,58 +19,73 @@ class _MeteringPageState extends State<MeteringPage> {
       child: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 16),
-
-            // Toggle between Incident and Zone modes
+            const SizedBox(height: 24),
             CupertinoSegmentedControl<String>(
               children: const {
                 'Incident': Text('Incident'),
                 'Zone': Text('Zone'),
               },
               groupValue: session.meteringMode,
-              onValueChanged: (mode) => setState(() => session.meteringMode = mode),
+              onValueChanged: (String mode) {
+                setState(() {
+                  session.meteringMode = mode;
+                });
+              },
             ),
-
-            const SizedBox(height: 32),
-            const Text('Low EV', style: TextStyle(color: Colors.white)),
-            CupertinoPicker(
-              magnification: 1.2,
-              useMagnifier: true,
-              itemExtent: 40,
-              scrollController: FixedExtentScrollController(initialItem: session.lowEV.toInt()),
-              onSelectedItemChanged: (v) => setState(() => session.lowEV = v.toDouble()),
-              children: List<Widget>.generate(25, (i) => Text('EV $i', style: const TextStyle(color: Colors.white))),
-            ),
-
-            const Text('Low Zone', style: TextStyle(color: Colors.white)),
-            CupertinoPicker(
-              magnification: 1.2,
-              useMagnifier: true,
-              itemExtent: 40,
-              scrollController: FixedExtentScrollController(initialItem: session.lowZone.toInt()),
-              onSelectedItemChanged: (v) => setState(() => session.lowZone = v.toDouble()),
-              children: List<Widget>.generate(12, (i) => Text('Zone $i', style: const TextStyle(color: Colors.white))),
-            ),
-
-            const Text('High EV', style: TextStyle(color: Colors.white)),
-            CupertinoPicker(
-              magnification: 1.2,
-              useMagnifier: true,
-              itemExtent: 40,
-              scrollController: FixedExtentScrollController(initialItem: session.highEV.toInt()),
-              onSelectedItemChanged: (v) => setState(() => session.highEV = v.toDouble()),
-              children: List<Widget>.generate(25, (i) => Text('EV $i', style: const TextStyle(color: Colors.white))),
-            ),
-
-            const Text('High Zone', style: TextStyle(color: Colors.white)),
-            CupertinoPicker(
-              magnification: 1.2,
-              useMagnifier: true,
-              itemExtent: 40,
-              scrollController: FixedExtentScrollController(initialItem: session.highZone.toInt()),
-              onSelectedItemChanged: (v) => setState(() => session.highZone = v.toDouble()),
-              children: List<Widget>.generate(12, (i) => Text('Zone $i', style: const TextStyle(color: Colors.white))),
-            ),
+            const SizedBox(height: 24),
+            if (session.meteringMode == 'Zone') ...[
+              const Text('Low EV'),
+              CupertinoPicker(
+                itemExtent: 32,
+                scrollController: FixedExtentScrollController(
+                  initialItem: session.lowEV,
+                ),
+                onSelectedItemChanged: (v) =>
+                    setState(() => session.lowEV = v),
+                children: List.generate(21, (index) => Text('${index - 5} EV')),
+              ),
+              const Text('Low Zone'),
+              CupertinoPicker(
+                itemExtent: 32,
+                scrollController: FixedExtentScrollController(
+                  initialItem: session.lowZone,
+                ),
+                onSelectedItemChanged: (v) =>
+                    setState(() => session.lowZone = v),
+                children: List.generate(11, (index) => Text('Zone $index')),
+              ),
+              const Text('High EV'),
+              CupertinoPicker(
+                itemExtent: 32,
+                scrollController: FixedExtentScrollController(
+                  initialItem: session.highEV,
+                ),
+                onSelectedItemChanged: (v) =>
+                    setState(() => session.highEV = v),
+                children: List.generate(21, (index) => Text('${index - 5} EV')),
+              ),
+              const Text('High Zone'),
+              CupertinoPicker(
+                itemExtent: 32,
+                scrollController: FixedExtentScrollController(
+                  initialItem: session.highZone,
+                ),
+                onSelectedItemChanged: (v) =>
+                    setState(() => session.highZone = v),
+                children: List.generate(11, (index) => Text('Zone $index')),
+              ),
+            ] else ...[
+              const Text('Incident Reading'),
+              CupertinoPicker(
+                itemExtent: 32,
+                scrollController: FixedExtentScrollController(
+                  initialItem: session.incidentEV,
+                ),
+                onSelectedItemChanged: (v) =>
+                    setState(() => session.incidentEV = v),
+                children: List.generate(21, (index) => Text('${index - 5} EV')),
+              ),
+            ]
           ],
         ),
       ),
