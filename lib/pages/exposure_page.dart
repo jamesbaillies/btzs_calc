@@ -1,103 +1,60 @@
-// lib/exposure_page.dart
-import 'package:btzs_calc/session.dart';
 import 'package:flutter/cupertino.dart';
-import 'utils/curve_loader.dart';
-import '../session.dart';
+import 'package:btzs_calc/session.dart';
+import 'package:btzs_calc/pages/exposure_summary_page.dart';
+import 'package:btzs_calc/utils/curve_loader.dart';
 
-class ExposurePage extends StatefulWidget {
-   ExposurePage({super.key});
+class ExposurePage extends StatelessWidget {
+  final Session session;
 
-  @override
-  State<ExposurePage> createState() => _ExposurePageState();
-}
-
-class _ExposurePageState extends State<ExposurePage> {
-  final session = Session();
-  late bool useApertureMode;
-
-  @override
-  void initState() {
-    super.initState();
-    useApertureMode = session.useApertureMode;
-  }
+  const ExposurePage({super.key, required this.session});
 
   @override
   Widget build(BuildContext context) {
+    final filmCurve = session.filmStock.isNotEmpty
+        ? session.loadedFilmCurves[session.filmStock]
+        : null;
+
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(middle: Text('Exposure')),
+      navigationBar: const CupertinoNavigationBar(
+        middle: Text('Exposure'),
+      ),
       child: SafeArea(
-        child: Column(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
           children: [
-            CupertinoSlidingSegmentedControl<bool>(
-              groupValue: useApertureMode,
-              children: const {
-                true: Text('Aperture'),
-                false: Text('Shutter'),
-              },
-              onValueChanged: (val) {
-                if (val != null) {
-                  setState(() {
-                    useApertureMode = val;
-                    session.useApertureMode = val;
-                  });
-                }
+            const Text('Exposure Settings',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+            _buildInfoTile('Mode', session.useApertureMode ? 'Aperture Priority' : 'Shutter Priority'),
+            _buildInfoTile('Aperture', 'f/${session.aperture}'),
+            _buildInfoTile('Shutter', session.shutterTimeString),
+            _buildInfoTile('Ideal Exposure', session.idealExposureString),
+            const SizedBox(height: 40),
+            CupertinoButton.filled(
+              child: const Text('View Summary'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                    builder: (context) => ExposureSummaryPage(
+                      session: session,
+                      filmCurve: filmCurve,
+                    ),
+                  ),
+                );
               },
             ),
-            const SizedBox(height: 20),
-            if (useApertureMode)
-              Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 32,
-                  scrollController: FixedExtentScrollController(
-                      initialItem: session.selectedApertureIndex),
-                  onSelectedItemChanged: (index) => setState(
-                          () => session.selectedApertureIndex = index),
-                  children:
-                  session.apertureValues.map((f) => Text('f/$f')).toList(),
-                ),
-              )
-            else
-              Expanded(
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: CupertinoPicker(
-                        itemExtent: 32,
-                        scrollController: FixedExtentScrollController(
-                            initialItem: session.selectedMin),
-                        onSelectedItemChanged: (i) =>
-                            setState(() => session.selectedMin = i),
-                        children: List.generate(10, (i) => Text('$i min')),
-                      ),
-                    ),
-                    Expanded(
-                      child: CupertinoPicker(
-                        itemExtent: 32,
-                        scrollController: FixedExtentScrollController(
-                            initialItem: session.selectedSec),
-                        onSelectedItemChanged: (i) =>
-                            setState(() => session.selectedSec = i),
-                        children: List.generate(60, (i) => Text('$i sec')),
-                      ),
-                    ),
-                    Expanded(
-                      child: CupertinoPicker(
-                        itemExtent: 32,
-                        scrollController: FixedExtentScrollController(
-                            initialItem: session.selectedFraction),
-                        onSelectedItemChanged: (i) =>
-                            setState(() => session.selectedFraction = i),
-                        children: List.generate(
-                            session.shutterFractions.length,
-                                (i) => Text('1/${session.shutterFractions[i]}')),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildInfoTile(String label, String value) {
+    return CupertinoFormRow(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      prefix: Text(label),
+      child: Text(value, textAlign: TextAlign.right),
     );
   }
 }

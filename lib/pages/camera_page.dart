@@ -1,128 +1,123 @@
+// camera_page.dart (starting structure for functional update)
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../session.dart';
+import 'package:btzs_calc/session.dart';
 
 class CameraPage extends StatefulWidget {
-  const CameraPage({super.key});
+  final Session session;
+
+  const CameraPage({super.key, required this.session});
 
   @override
   State<CameraPage> createState() => _CameraPageState();
 }
 
 class _CameraPageState extends State<CameraPage> {
-  final session = Session();
-  final titleController = TextEditingController();
-  final filmHolderController = TextEditingController();
-  final focalLengthController = TextEditingController();
+  late TextEditingController titleController;
+  late TextEditingController holderController;
+  late TextEditingController focalLengthController;
 
   @override
   void initState() {
     super.initState();
-    titleController.text = session.exposureTitle;
-    filmHolderController.text = session.filmHolder;
-    focalLengthController.text = session.focalLength.toString();
+    titleController = TextEditingController(text: widget.session.exposureTitle);
+    holderController = TextEditingController(text: widget.session.filmHolder);
+    focalLengthController = TextEditingController(text: widget.session.focalLength.toString());
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    holderController.dispose();
+    focalLengthController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
-        middle: Text('Camera Setup'),
+        middle: Text('Camera'),
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView(
-            children: [
-              const Text('Exposure Title', style: TextStyle(color: Colors.white)),
-              CupertinoTextField(
-                controller: titleController,
-                onChanged: (val) => setState(() => session.exposureTitle = val),
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            CupertinoTextField(
+              controller: titleController,
+              placeholder: 'Title',
+              onChanged: (val) => setState(() => widget.session.exposureTitle = val),
+            ),
+            const SizedBox(height: 12),
+            CupertinoTextField(
+              controller: holderController,
+              placeholder: 'Holder Number',
+              onChanged: (val) => setState(() => widget.session.filmHolder = val),
+            ),
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: () {
+                // TODO: open modal to pick film stock from widget.session.filmStocks
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                decoration: BoxDecoration(
+                  color: CupertinoColors.systemGrey6,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Film', style: TextStyle(fontSize: 16)),
+                    Text(widget.session.filmStock ?? 'Select', style: const TextStyle(color: CupertinoColors.activeBlue)),
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
-
-              const Text('Film Holder', style: TextStyle(color: Colors.white)),
-              CupertinoTextField(
-                controller: filmHolderController,
-                onChanged: (val) => setState(() => session.filmHolder = val),
-              ),
-              const SizedBox(height: 16),
-
-              const Text('Film Stock', style: TextStyle(color: Colors.white)),
-              CupertinoButton(
-                padding: const EdgeInsets.symmetric(horizontal: 0),
-                onPressed: () => _showFilmStockPicker(context),
-                child: Text(session.filmStock, style: const TextStyle(color: Colors.white)),
-              ),
-              const SizedBox(height: 16),
-
-              const Text('Focal Length (mm)', style: TextStyle(color: Colors.white)),
-              Row(
-                children: [
-                  Expanded(
-                    child: CupertinoTextField(
-                      controller: focalLengthController,
-                      keyboardType: TextInputType.number,
-                      onSubmitted: (val) {
-                        final parsed = double.tryParse(val);
-                        if (parsed != null) {
-                          setState(() {
-                            session.focalLength = parsed.toDouble();
-                            if (!session.savedFocalLengths.contains(parsed.toInt())) {
-                              session.savedFocalLengths.add(parsed);
-                            }
-                          });
-                        }
-                      },
-                    ),
-                  ),
-                  CupertinoButton(
-                    child: const Text('▼'),
-                    onPressed: () => _showFocalLengthPicker(context),
-                  )
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showFilmStockPicker(BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (_) => SizedBox(
-        height: 250,
-        child: CupertinoPicker(
-          itemExtent: 32.0,
-          scrollController: FixedExtentScrollController(
-            initialItem: session.filmStocks.indexOf(session.filmStock),
-          ),
-          onSelectedItemChanged: (index) => setState(() {
-            session.filmStock = session.filmStocks[index];
-          }),
-          children: session.filmStocks.map((stock) => Text(stock)).toList(),
-        ),
-      ),
-    );
-  }
-
-  void _showFocalLengthPicker(BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (_) => SizedBox(
-        height: 250,
-        child: CupertinoPicker(
-          itemExtent: 32.0,
-          scrollController: FixedExtentScrollController(
-              initialItem: session.savedFocalLengths.indexOf(session.focalLength)
-          ),
-          onSelectedItemChanged: (index) => setState(() {
-            session.focalLength = session.savedFocalLengths[index].toDouble();
-            focalLengthController.text = session.focalLength.toString();
-          }),
-          children: session.savedFocalLengths.map((f) => Text('$f mm')).toList(),
+            ),
+            const SizedBox(height: 12),
+            CupertinoTextField(
+              controller: focalLengthController,
+              placeholder: 'Focal Length (mm)',
+              keyboardType: TextInputType.number,
+              onChanged: (val) {
+                final parsed = double.tryParse(val);
+                if (parsed != null) {
+                  setState(() => widget.session.focalLength = parsed);
+                }
+              },
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Flare Factor'),
+                CupertinoPicker(
+                  itemExtent: 32,
+                  scrollController: FixedExtentScrollController(initialItem: (widget.session.flareFactor * 100).toInt()),
+                  onSelectedItemChanged: (val) {
+                    setState(() => widget.session.flareFactor = val / 100);
+                  },
+                  children: List.generate(101, (i) => Text((i / 100).toStringAsFixed(2))),
+                )
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Paper ES'),
+                CupertinoPicker(
+                  itemExtent: 32,
+                  scrollController: FixedExtentScrollController(initialItem: (widget.session.paperES * 100).toInt()),
+                  onSelectedItemChanged: (val) {
+                    setState(() => widget.session.paperES = val / 100);
+                  },
+                  children: List.generate(401, (i) => Text((i / 100).toStringAsFixed(2))),
+                )
+              ],
+            ),
+          ],
         ),
       ),
     );

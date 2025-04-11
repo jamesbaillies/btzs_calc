@@ -1,60 +1,81 @@
+import 'package:flutter/foundation.dart';
 
-import 'package:flutter/material.dart';
+enum DOFMode { none, check, distance, focus }
 
 class Session extends ChangeNotifier {
-  // Camera Page
+  // Basic Exposure Info
   String exposureTitle = '';
-  String filmHolder = '';
-  String filmStock = '';
-  List<String> filmStocks = ['HP5+', 'Tri-X', 'Portra 400'];
-
+  int iso = 100;
+  double aperture = 8.0;
   double focalLength = 210.0;
-  List<double> savedFocalLengths = [90.0, 150.0, 210.0, 300.0, 360.0];
 
-  // DOF Page
-  String dofMode = 'None';
-  bool favorDOF = false;
-  double focusTravel = 0.0;
-  double nearDistance = 1.0;
-  double farDistance = 1.0;
-  double subjectDistance = 1.0;
-  double circleOfConfusion = 0.05;
+  // Film Stock
+  List<String> filmStocks = ['HP5+', 'Tri-X', 'FP4+', 'T-Max 100'];
+  String filmStock = 'HP5+';
 
-  int aperture = 8;
-  List<int> apertureValues = [4, 5, 5, 8, 11, 16, 22, 32, 45, 64, 90];
-  set apertureValue(int value) {
-    aperture = value;
-    notifyListeners();
+  // Shutter Info
+  int selectedMin = 0;
+  int selectedSec = 1;
+  int selectedFraction = 0;
+  String get shutterTimeString {
+    if (selectedMin > 0) {
+      return "$selectedMin:${selectedSec.toString().padLeft(2, '0')} min";
+    } else if (selectedSec > 0) {
+      return "$selectedSec sec";
+    } else if (selectedFraction > 0) {
+      return "1/${[1, 2, 4, 8, 15, 30, 60, 125, 250, 500][selectedFraction]} sec";
+    } else {
+      return "1 sec";
+    }
   }
 
-  // Metering Page
-  String meteringMode = 'Incident';
+  // Exposure Calculations
+  double flareFactor = 0.2;
+  double paperES = 1.25;
+  double sbr = 7.0;
+  double averageG = 0.56;
+  double effectiveFilmSpeed = 160.0;
+  String idealExposureString = '1/4 sec at f/16';
+
+  // Filter / Bellows Info
+  String filterName = 'None';
+  String bellowsMode = 'None';
+  double magnification = 0.0;
+  double bellowsFactor = 1.0;
+  int exposureAdjustment = 0;
+  String get exposureAdjustmentLabel =>
+      exposureAdjustment > 0 ? '+$exposureAdjustment' : '$exposureAdjustment';
+
+  // Focus Info
+  String circleOfConfusionLabel = '0.025mm';
+  double focusSpread = 18.0;
+
+  // Metering Info
+  int incidentEV = 10;
+  int highEV = 13;
+  int lowEV = 7;
+  int lowZone = 3;
+  int highZone = 7;
   String meteringNotes = '';
+  String meteringMode = 'Incident';
 
-  double incidentLoEV = 0.0;
-  double incidentHiEV = 0.0;
+  // Factors Page
+  String selectedFilter = 'None';
+  String factorsDescription = 'Standard exposure with no additional factors.';
 
-  double lowEV = 0.0;
-  double highEV = 0.0;
-  int lowZone = 2;
-  int highZone = 8;
+  // DOF Page
+  List<int> apertureValues = [4, 5, 5.6.toInt(), 8, 11, 16, 22, 32, 45, 64];
+  double subjectDistance = 5.0;
+  double nearDistance = 4.0;
+  double farDistance = 6.0;
+  double focusTravel = 12.0;
+  double circleOfConfusion = 0.025;
+  double hyperfocalDistance = 6.5;
+  DOFMode dofMode = DOFMode.none;
 
-  // Exposure Page
-  bool useApertureMode = true;
-  int selectedApertureIndex = 4;
-
-  int selectedMin = 0;
-  int selectedSec = 0;
-  int selectedFraction = 3;
-
-  List<int> shutterFractions = [1, 2, 4, 8, 15, 30, 60, 125, 250, 500];
-
-  void reset() {
-    exposureTitle = '';
-    filmHolder = '';
-    filmStock = '';
-    focalLength = 210.0;
-    meteringNotes = '';
+  // Notify helper
+  void update(VoidCallback fn) {
+    fn();
     notifyListeners();
   }
 }
