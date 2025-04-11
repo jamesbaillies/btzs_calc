@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'session.dart';
+import '../session.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({super.key});

@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'camera_page.dart';
-import 'metering_page.dart';
+import 'pages/camera_page.dart';
+import 'pages/metering_page.dart';
 import 'factors_page.dart';
-import 'dof_page.dart';
+import 'pages/dof_page.dart';
 import 'exposure_page.dart';
 
 void main() {

@@ -1,7 +1,8 @@
 // lib/exposure_page.dart
 import 'package:btzs_calc/session.dart';
 import 'package:flutter/cupertino.dart';
-import 'session.dart';
+import 'utils/curve_loader.dart';
+import '../session.dart';
 
 class ExposurePage extends StatefulWidget {
    ExposurePage({super.key});
