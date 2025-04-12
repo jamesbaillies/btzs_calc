@@ -1,10 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'pages/camera_page.dart';
-import 'pages/metering_page.dart';
-import 'factors_page.dart';
-import 'pages/dof_page.dart';
-import 'exposure_page.dart';
+import 'package:btzs_calc/pages/exposure_list_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,51 +10,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return CupertinoApp(
       title: 'BTZS Exposure App',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      home: const TabsPage(),
-    );
-  }
-}
-
-class TabsPage extends StatefulWidget {
-  const TabsPage({super.key});
-
-  @override
-  State<TabsPage> createState() => _TabsPageState();
-}
-
-class _TabsPageState extends State<TabsPage> {
-  int _currentIndex = 0;
-
-  final List<Widget> _tabs = [
-    CameraPage(),
-    MeteringPage(),
-    FactorsPage(),
-    DOFPage(),
-    ExposurePage(),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _tabs[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.camera_alt), label: 'Camera'),
-          BottomNavigationBarItem(icon: Icon(Icons.lock), label: 'Metering'),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Factors'),
-          BottomNavigationBarItem(icon: Icon(Icons.image), label: 'DOF'),
-          BottomNavigationBarItem(icon: Icon(Icons.text_fields), label: 'Exposure'),
-        ],
+      theme: const CupertinoThemeData(
+        brightness: Brightness.dark,
+        primaryColor: CupertinoColors.activeBlue,
+        scaffoldBackgroundColor: CupertinoColors.black,
+        textTheme: CupertinoTextThemeData(
+          textStyle: TextStyle(
+            color: CupertinoColors.white,
+            fontSize: 16,
+          ),
+          actionTextStyle: TextStyle(color: CupertinoColors.activeBlue),
+          navTitleTextStyle: TextStyle(
+            color: CupertinoColors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
+      home: const ExposureListPage(),
     );
   }
 }

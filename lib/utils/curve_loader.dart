@@ -3,8 +3,6 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 
-import 'dart:convert';
-import 'package:flutter/services.dart' show rootBundle;
 
 class CurveLoader {
   Future<List<double>> loadCurve(String curveName) async {
@@ -13,7 +11,6 @@ class CurveLoader {
       final List<dynamic> jsonResult = json.decode(data);
       return jsonResult.map((e) => (e as num).toDouble()).toList();
     } catch (e) {
-      print("Error loading curve: $e");
       return [];
     }
   }
@@ -23,13 +20,24 @@ class FilmCurve {
   final String name;
   final List<double> exposureStops; // e.g. [-4.0, -3.5, ..., +4.0]
   final List<double> densities;     // e.g. [0.12, 0.17, ..., 1.25]
+  final String developerInfo;
+  final double developmentTime;
 
-  FilmCurve({required this.name, required this.exposureStops, required this.densities});
+
+  FilmCurve({required this.name, required this.exposureStops, required this.densities,required this.developerInfo,
+    required this.developmentTime,});
 
   factory FilmCurve.fromJson(String name, Map<String, dynamic> json) {
     final stops = List<double>.from(json['exposureStops']);
     final densities = List<double>.from(json['densities']);
-    return FilmCurve(name: name, exposureStops: stops, densities: densities);
+    return FilmCurve(
+      name: name,
+      exposureStops: stops,
+      densities: densities,
+      developerInfo: 'D-76 1+1', // placeholder value
+      developmentTime: 8.5,      // placeholder value
+    );
+
   }
 
 

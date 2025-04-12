@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:btzs_calc/session.dart';
 
 class FactorsPage extends StatelessWidget {
@@ -17,6 +16,8 @@ class FactorsPage extends StatelessWidget {
       '-1.0', '-2/3', '-1/3', '0', '+1/3', '+2/3', '+1.0'
     ];
 
+    final textStyle = CupertinoTheme.of(context).textTheme.textStyle;
+
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
         middle: Text('Factors'),
@@ -25,13 +26,13 @@ class FactorsPage extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const Text('Filter Used'),
+            Text('Filter Used', style: textStyle),
             CupertinoSegmentedControl<String>(
               children: {
                 for (var f in filters)
                   f: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(f),
+                    child: Text(f, style: textStyle),
                   )
               },
               groupValue: session.selectedFilter,
@@ -39,13 +40,13 @@ class FactorsPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            const Text('Bellows Factor'),
+            Text('Bellows Factor', style: textStyle),
             CupertinoSegmentedControl<String>(
               children: {
                 for (var option in bellowsOptions)
                   option: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(option),
+                    child: Text(option, style: textStyle),
                   )
               },
               groupValue: session.bellowsMode,
@@ -53,20 +54,22 @@ class FactorsPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            const Text('Description'),
+            Text('Description', style: textStyle),
             Text(
               session.factorsDescription,
-              style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+              style: textStyle.merge(
+                const TextStyle(fontStyle: FontStyle.italic),
+              ),
             ),
             const SizedBox(height: 24),
 
-            const Text('Exposure Adjustment'),
+            Text('Exposure Adjustment', style: textStyle),
             CupertinoSegmentedControl<String>(
               children: {
                 for (var step in exposureAdjustments)
                   step: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: Text(step),
+                    child: Text(step, style: textStyle),
                   )
               },
               groupValue: session.exposureAdjustment,

@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:btzs_calc/session.dart';
 import 'package:btzs_calc/pages/exposure_summary_page.dart';
-import 'package:btzs_calc/utils/curve_loader.dart';
 
 class ExposurePage extends StatelessWidget {
   final Session session;
@@ -22,10 +21,18 @@ class ExposurePage extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const Text('Exposure Settings',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            Text(
+              'Exposure Settings',
+              style: DefaultTextStyle.of(context).style.copyWith(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 20),
-            _buildInfoTile('Mode', session.useApertureMode ? 'Aperture Priority' : 'Shutter Priority'),
+            _buildInfoTile(
+              'Mode',
+              session.useApertureMode ? 'Aperture Priority' : 'Shutter Priority',
+            ),
             _buildInfoTile('Aperture', 'f/${session.aperture}'),
             _buildInfoTile('Shutter', session.shutterTimeString),
             _buildInfoTile('Ideal Exposure', session.idealExposureString),

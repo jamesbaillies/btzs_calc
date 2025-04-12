@@ -1,17 +1,18 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:btzs_calc/session.dart';
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
+import 'package:btzs_calc/session.dart';
 
 class DOFPage extends StatefulWidget {
-  const DOFPage({super.key});
+  final Session session;
+
+  const DOFPage({required this.session, super.key});
 
   @override
   State<DOFPage> createState() => _DOFPageState();
 }
 
 class _DOFPageState extends State<DOFPage> {
-  final session = Session();
+  Session get session => widget.session;
 
   double log2(num x) => (x > 0) ? log(x) / log(2) : 0;
 
@@ -29,12 +30,13 @@ class _DOFPageState extends State<DOFPage> {
 
   @override
   Widget build(BuildContext context) {
-    final f = session.focalLength; // in mm
+    final textStyle = CupertinoTheme.of(context).textTheme.textStyle;
+    final f = session.focalLength;
     final N = session.aperture;
-    final d = session.subjectDistance; // in meters
-    final c = 0.03; // circle of confusion in mm
+    final d = session.subjectDistance;
+    final c = 0.03;
 
-    final H = calculateHyperfocal(f, N, c) / 1000; // in meters
+    final H = calculateHyperfocal(f, N, c) / 1000;
     final near = calculateNearLimit(H, d);
     final far = calculateFarLimit(H, d);
 
@@ -44,29 +46,43 @@ class _DOFPageState extends State<DOFPage> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const Text('Aperture'),
+            Text('Aperture', style: textStyle),
             CupertinoPicker(
               itemExtent: 32,
-              scrollController: FixedExtentScrollController(initialItem: session.apertureValues.indexOf(session.aperture)),
-              onSelectedItemChanged: (index) => setState(() => session.aperture = session.apertureValues[index]),
-              children: session.apertureValues.map((f) => Text('f/$f')).toList(),
+              scrollController: FixedExtentScrollController(
+                initialItem: session.apertureValues.indexOf(session.aperture),
+              ),
+              onSelectedItemChanged: (index) =>
+                  setState(() => session.aperture = session.apertureValues[index]),
+              children: session.apertureValues
+                  .map((f) => Text('f/$f', style: textStyle))
+                  .toList(),
             ),
 
             const SizedBox(height: 24),
-            const Text('Subject Distance (m)'),
+            Text('Subject Distance (m)', style: textStyle),
             CupertinoPicker(
               itemExtent: 32,
-              scrollController: FixedExtentScrollController(initialItem: session.subjectDistance.round() - 1),
-              onSelectedItemChanged: (index) => setState(() => session.subjectDistance = (index + 1).toDouble()),
-              children: List.generate(100, (i) => Text('${i + 1} m')),
+              scrollController: FixedExtentScrollController(
+                initialItem: session.subjectDistance.round() - 1,
+              ),
+              onSelectedItemChanged: (index) =>
+                  setState(() => session.subjectDistance = (index + 1).toDouble()),
+              children: List.generate(
+                100,
+                    (i) => Text('${i + 1} m', style: textStyle),
+              ),
             ),
 
             const SizedBox(height: 32),
-            const Text('Calculated Feedback', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              'Calculated Feedback',
+              style: textStyle.copyWith(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
-            Text('Hyperfocal Distance: ${H.toStringAsFixed(2)} m'),
-            Text('Near Focus Limit: ${near.toStringAsFixed(2)} m'),
-            Text('Far Focus Limit: ${far > 9999 ? "∞" : far.toStringAsFixed(2)} m'),
+            Text('Hyperfocal Distance: ${H.toStringAsFixed(2)} m', style: textStyle),
+            Text('Near Focus Limit: ${near.toStringAsFixed(2)} m', style: textStyle),
+            Text('Far Focus Limit: ${far > 9999 ? "∞" : far.toStringAsFixed(2)} m', style: textStyle),
           ],
         ),
       ),
