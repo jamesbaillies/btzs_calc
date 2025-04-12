@@ -13,6 +13,7 @@ class MeteringPage extends StatefulWidget {
 class _MeteringPageState extends State<MeteringPage> {
   late FixedExtentScrollController loEvController;
   late FixedExtentScrollController hiEvController;
+  late TextEditingController notesController;
 
   final List<double> evValues = List.generate(171, (i) => i / 10.0);
   final List<int> zoneValues = List.generate(11, (i) => i);
@@ -23,17 +24,19 @@ class _MeteringPageState extends State<MeteringPage> {
   void initState() {
     super.initState();
     loEvController = FixedExtentScrollController(
-      initialItem: evValues.indexWhere((e) => e == session.lowEV.toDouble()),
+      initialItem: evValues.indexWhere((e) => e == session.lowEV),
     );
     hiEvController = FixedExtentScrollController(
-      initialItem: evValues.indexWhere((e) => e == session.highEV.toDouble()),
+      initialItem: evValues.indexWhere((e) => e == session.highEV),
     );
+    notesController = TextEditingController(text: session.meteringNotes);
   }
 
   @override
   void dispose() {
     loEvController.dispose();
     hiEvController.dispose();
+    notesController.dispose();
     super.dispose();
   }
 
@@ -62,11 +65,11 @@ class _MeteringPageState extends State<MeteringPage> {
             const SizedBox(height: 24),
 
             if (session.meteringMode == 'Incident') ...[
-              buildEvPicker('Lo EV', session.lowEV, loEvController, (v) {
+              _buildEvPicker('Lo EV', session.lowEV, loEvController, (v) {
                 setState(() => session.lowEV = evValues[v]);
               }, textStyle),
               const SizedBox(height: 12),
-              buildEvPicker('Hi EV', session.highEV, hiEvController, (v) {
+              _buildEvPicker('Hi EV', session.highEV, hiEvController, (v) {
                 setState(() => session.highEV = evValues[v]);
               }, textStyle),
               const SizedBox(height: 16),
@@ -77,30 +80,35 @@ class _MeteringPageState extends State<MeteringPage> {
                 ),
               ),
             ] else ...[
-              buildZonePicker('Low Zone', session.lowZone, (v) {
+              _buildZonePicker('Low Zone', session.lowZone, (v) {
                 setState(() => session.lowZone = v);
               }, textStyle),
               const SizedBox(height: 12),
-              buildZonePicker('High Zone', session.highZone, (v) {
+              _buildZonePicker('High Zone', session.highZone, (v) {
                 setState(() => session.highZone = v);
               }, textStyle),
             ],
 
             const SizedBox(height: 24),
+            Text('Metering Notes', style: textStyle),
+            const SizedBox(height: 8),
             CupertinoTextField(
-              placeholder: 'Metering Notes',
-              controller: TextEditingController(text: session.meteringNotes),
+              placeholder: 'e.g. backlit subject, extra stop added',
+              controller: notesController,
               onChanged: (val) => session.meteringNotes = val,
-            )
+              style: textStyle,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget buildEvPicker(String label, double value, FixedExtentScrollController controller,
+  Widget _buildEvPicker(String label, double value,
+      FixedExtentScrollController controller,
       ValueChanged<int> onChanged, TextStyle textStyle) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: textStyle),
         SizedBox(
@@ -116,8 +124,10 @@ class _MeteringPageState extends State<MeteringPage> {
     );
   }
 
-  Widget buildZonePicker(String label, int value, ValueChanged<int> onChanged, TextStyle textStyle) {
+  Widget _buildZonePicker(String label, int value,
+      ValueChanged<int> onChanged, TextStyle textStyle) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: textStyle),
         SizedBox(

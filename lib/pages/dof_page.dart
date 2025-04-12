@@ -5,7 +5,7 @@ import 'package:btzs_calc/session.dart';
 class DOFPage extends StatefulWidget {
   final Session session;
 
-  const DOFPage({required this.session, super.key});
+  const DOFPage({super.key, required this.session});
 
   @override
   State<DOFPage> createState() => _DOFPageState();
@@ -41,36 +41,44 @@ class _DOFPageState extends State<DOFPage> {
     final far = calculateFarLimit(H, d);
 
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(middle: Text('DOF Calculator')),
+      navigationBar: const CupertinoNavigationBar(
+        middle: Text('DOF Calculator'),
+      ),
       child: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Text('Aperture', style: textStyle),
-            CupertinoPicker(
-              itemExtent: 32,
-              scrollController: FixedExtentScrollController(
-                initialItem: session.apertureValues.indexOf(session.aperture),
+            _buildSectionHeader('Aperture', textStyle),
+            SizedBox(
+              height: 100,
+              child: CupertinoPicker(
+                itemExtent: 32,
+                scrollController: FixedExtentScrollController(
+                  initialItem: session.apertureValues.indexOf(session.aperture),
+                ),
+                onSelectedItemChanged: (index) =>
+                    setState(() => session.aperture = session.apertureValues[index]),
+                children: session.apertureValues
+                    .map((f) => Text('f/$f', style: textStyle))
+                    .toList(),
               ),
-              onSelectedItemChanged: (index) =>
-                  setState(() => session.aperture = session.apertureValues[index]),
-              children: session.apertureValues
-                  .map((f) => Text('f/$f', style: textStyle))
-                  .toList(),
             ),
 
             const SizedBox(height: 24),
-            Text('Subject Distance (m)', style: textStyle),
-            CupertinoPicker(
-              itemExtent: 32,
-              scrollController: FixedExtentScrollController(
-                initialItem: session.subjectDistance.round() - 1,
-              ),
-              onSelectedItemChanged: (index) =>
-                  setState(() => session.subjectDistance = (index + 1).toDouble()),
-              children: List.generate(
-                100,
-                    (i) => Text('${i + 1} m', style: textStyle),
+            _buildSectionHeader('Subject Distance (m)', textStyle),
+            SizedBox(
+              height: 100,
+              child: CupertinoPicker(
+                itemExtent: 32,
+                scrollController: FixedExtentScrollController(
+                  initialItem: session.subjectDistance.round() - 1,
+                ),
+                onSelectedItemChanged: (index) =>
+                    setState(() => session.subjectDistance = (index + 1).toDouble()),
+                children: List.generate(
+                  100,
+                      (i) => Text('${i + 1} m', style: textStyle),
+                ),
               ),
             ),
 
@@ -86,6 +94,13 @@ class _DOFPageState extends State<DOFPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, TextStyle style) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Text(title, style: style),
     );
   }
 }

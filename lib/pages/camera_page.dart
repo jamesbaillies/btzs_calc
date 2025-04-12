@@ -60,9 +60,7 @@ class _CameraPageState extends State<CameraPage> {
             ),
             const SizedBox(height: 12),
             GestureDetector(
-              onTap: () {
-                // TODO: implement film stock selector
-              },
+              onTap: () => _showFilmPicker(context),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                 decoration: BoxDecoration(
@@ -73,7 +71,8 @@ class _CameraPageState extends State<CameraPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Film', style: textStyle),
-                    Text(session.filmStock, style: textStyle.copyWith(color: CupertinoColors.activeBlue)),
+                    Text(session.filmStock,
+                        style: textStyle.copyWith(color: CupertinoColors.activeBlue)),
                   ],
                 ),
               ),
@@ -117,17 +116,48 @@ class _CameraPageState extends State<CameraPage> {
     required ValueChanged<double> onChanged,
     required int divisions,
   }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final textStyle = CupertinoTheme.of(context).textTheme.textStyle;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label),
-        CupertinoPicker(
-          itemExtent: 32,
-          scrollController: FixedExtentScrollController(initialItem: (value * 100).toInt()),
-          onSelectedItemChanged: (val) => onChanged(val / 100),
-          children: List.generate(divisions + 1, (i) => Text((i / 100).toStringAsFixed(2))),
+        Text(label, style: textStyle),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 100,
+          child: CupertinoPicker(
+            itemExtent: 32,
+            scrollController: FixedExtentScrollController(
+              initialItem: (value * 100).toInt(),
+            ),
+            onSelectedItemChanged: (val) => onChanged(val / 100),
+            children: List.generate(
+              divisions + 1,
+                  (i) => Center(child: Text((i / 100).toStringAsFixed(2))),
+            ),
+          ),
         ),
       ],
+    );
+  }
+
+  void _showFilmPicker(BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (_) => SizedBox(
+        height: 250,
+        child: CupertinoPicker(
+          backgroundColor: CupertinoColors.systemGrey6,
+          itemExtent: 32,
+          scrollController: FixedExtentScrollController(
+            initialItem: session.filmStocks.indexOf(session.filmStock),
+          ),
+          onSelectedItemChanged: (index) {
+            setState(() => session.filmStock = session.filmStocks[index]);
+          },
+          children: session.filmStocks.map((f) => Center(child: Text(f))).toList(),
+        ),
+      ),
     );
   }
 }

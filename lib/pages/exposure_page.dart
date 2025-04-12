@@ -9,6 +9,7 @@ class ExposurePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = CupertinoTheme.of(context).textTheme;
     final filmCurve = session.filmStock.isNotEmpty
         ? session.loadedFilmCurves[session.filmStock]
         : null;
@@ -23,22 +24,19 @@ class ExposurePage extends StatelessWidget {
           children: [
             Text(
               'Exposure Settings',
-              style: DefaultTextStyle.of(context).style.copyWith(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+              style: theme.navTitleTextStyle.merge(
+                const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 20),
-            _buildInfoTile(
-              'Mode',
-              session.useApertureMode ? 'Aperture Priority' : 'Shutter Priority',
-            ),
-            _buildInfoTile('Aperture', 'f/${session.aperture}'),
-            _buildInfoTile('Shutter', session.shutterTimeString),
-            _buildInfoTile('Ideal Exposure', session.idealExposureString),
+            _buildInfoTile('Mode',
+                session.useApertureMode ? 'Aperture Priority' : 'Shutter Priority', theme),
+            _buildInfoTile('Aperture', 'f/${session.aperture}', theme),
+            _buildInfoTile('Shutter', session.shutterTimeString, theme),
+            _buildInfoTile('Ideal Exposure', session.idealExposureString, theme),
             const SizedBox(height: 40),
             CupertinoButton.filled(
-              child: const Text('View Summary'),
+              child: Text('View Summary', style: theme.actionTextStyle),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -57,11 +55,11 @@ class ExposurePage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoTile(String label, String value) {
+  Widget _buildInfoTile(String label, String value, CupertinoTextThemeData theme) {
     return CupertinoFormRow(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
-      prefix: Text(label),
-      child: Text(value, textAlign: TextAlign.right),
+      prefix: Text(label, style: theme.textStyle),
+      child: Text(value, textAlign: TextAlign.right, style: theme.textStyle),
     );
   }
 }

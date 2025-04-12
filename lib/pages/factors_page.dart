@@ -26,7 +26,7 @@ class FactorsPage extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Text('Filter Used', style: textStyle),
+            _buildLabel('Filter Used', textStyle),
             CupertinoSegmentedControl<String>(
               children: {
                 for (var f in filters)
@@ -40,7 +40,7 @@ class FactorsPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            Text('Bellows Factor', style: textStyle),
+            _buildLabel('Bellows Factor', textStyle),
             CupertinoSegmentedControl<String>(
               children: {
                 for (var option in bellowsOptions)
@@ -54,16 +54,19 @@ class FactorsPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            Text('Description', style: textStyle),
-            Text(
-              session.factorsDescription,
-              style: textStyle.merge(
-                const TextStyle(fontStyle: FontStyle.italic),
+            _buildLabel('Description', textStyle),
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                session.factorsDescription,
+                style: textStyle.merge(
+                  const TextStyle(fontStyle: FontStyle.italic),
+                ),
               ),
             ),
             const SizedBox(height: 24),
 
-            Text('Exposure Adjustment', style: textStyle),
+            _buildLabel('Exposure Adjustment', textStyle),
             CupertinoSegmentedControl<String>(
               children: {
                 for (var step in exposureAdjustments)
@@ -78,6 +81,13 @@ class FactorsPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildLabel(String label, TextStyle style) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6.0),
+      child: Text(label, style: style),
     );
   }
 }
